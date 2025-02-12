@@ -48,4 +48,4 @@ management:
 api:
   clients:
     order-service:
-      url: ${API_GATEWAY_URL:http://localhost:8765/orders}
+      url: ${ORDER_SERVICE_URL:http://localhost:8765/orders}

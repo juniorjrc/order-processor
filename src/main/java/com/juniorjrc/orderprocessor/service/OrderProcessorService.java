@@ -7,6 +7,7 @@ import com.juniorjrc.ordermodel.dto.UpdateOrderStatusRequestDTO;
 import com.juniorjrc.ordermodel.enums.SupplierEnum;
 import com.juniorjrc.orderprocessor.clients.OrderServiceClient;
 import com.juniorjrc.orderprocessor.factory.SupplierCalculationFactory;
+import com.juniorjrc.orderprocessor.publisher.OrderProcessorPublisherService;
 import com.juniorjrc.orderprocessor.strategy.SupplierProductCalculatorStrategy;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ public class OrderProcessorService {
     private static final String ERROR_PROCESSING_THE_ORDER = "Error processing the order. Details: %s";
 
     private final OrderServiceClient orderServiceClient;
+    private final OrderProcessorPublisherService orderProcessorPublisherService;
 
     public void processOrder(final Long orderId) {
         this.orderServiceClient.updateOrderStatus(orderId, new UpdateOrderStatusRequestDTO(PROCESSING, null));
@@ -38,7 +40,7 @@ public class OrderProcessorService {
                             orderDTO.orderValue(),
                             orderDTO.orderFinalValue(),
                             PROCESSED));
-            //TO DO notify product B
+            this.orderProcessorPublisherService.publishOrderToNotifier(orderDTO);
         } catch (Exception e) {
             this.orderServiceClient.updateOrderStatus(
                     orderId,
@@ -66,9 +68,11 @@ public class OrderProcessorService {
                 orderDTO.customerName(),
                 orderValue,
                 orderFinalValue,
-                orderDTO.status(),
+                PROCESSED,
                 orderDTO.errorDetails(),
-                orderDTO.products()
+                orderDTO.products(),
+                orderDTO.createdAt(),
+                orderDTO.updatedAt()
         );
     }
 }

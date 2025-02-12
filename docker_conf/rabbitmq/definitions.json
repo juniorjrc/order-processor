@@ -37,7 +37,7 @@
     ],
     "exchanges": [
         {
-            "name": "order-processor-exchange",
+            "name": "order-service-exchange",
             "type": "topic",
             "vhost": "order",
             "durable": true,
@@ -51,7 +51,7 @@
             "durable": true,
             "auto_delete": false,
             "arguments": {
-                "x-dead-letter-exchange": "order-processor-exchange",
+                "x-dead-letter-exchange": "order-service-exchange",
                 "x-dead-letter-routing-key": "order-processor-queue.undelivered"
             }
         },
@@ -60,22 +60,52 @@
             "vhost": "order",
             "durable": true,
             "auto_delete": false
+        },
+        {
+            "name": "order-notifier-queue",
+            "vhost": "order",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {
+                "x-dead-letter-exchange": "order-service-exchange",
+                "x-dead-letter-routing-key": "order-notifier-queue.undelivered"
+            }
+        },
+        {
+            "name": "order-notifier-queue.undelivered",
+            "vhost": "order",
+            "durable": true,
+            "auto_delete": false
         }
     ],
     "bindings": [
         {
-            "source": "order-processor-exchange",
+            "source": "order-service-exchange",
             "vhost": "order",
             "destination": "order-processor-queue",
             "destination_type": "queue",
             "routing_key": "order-processor-queue"
         },
         {
-            "source": "order-processor-exchange",
+            "source": "order-service-exchange",
             "vhost": "order",
             "destination": "order-processor-queue.undelivered",
             "destination_type": "queue",
             "routing_key": "order-processor-queue.undelivered"
+        },
+        {
+            "source": "order-service-exchange",
+            "vhost": "order",
+            "destination": "order-notifier-queue",
+            "destination_type": "queue",
+            "routing_key": "order-notifier-queue"
+        },
+        {
+            "source": "order-service-exchange",
+            "vhost": "order",
+            "destination": "order-notifier-queue.undelivered",
+            "destination_type": "queue",
+            "routing_key": "order-notifier-queue.undelivered"
         }
     ]
 }

@@ -13,7 +13,7 @@ public class OrderProcessorListener {
 
     private final OrderProcessorFacade orderProcessorFacade;
 
-    @RabbitListener(queues = ORDER_PROCESSOR_QUEUE, autoStartup = "true")
+    @RabbitListener(queues = ORDER_PROCESSOR_QUEUE, autoStartup = "true", concurrency = "3")
     public void processOrder(final String orderId) {
         this.orderProcessorFacade.processOrder(Long.valueOf(orderId));
     }
