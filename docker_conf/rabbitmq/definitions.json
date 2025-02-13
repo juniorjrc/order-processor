@@ -1,0 +1,111 @@
+{
+    "rabbit_version": "3.12.4",
+    "rabbitmq_version": "3.12.4",
+    "product_name": "RabbitMQ",
+    "product_version": "3.12.4",
+    "users": [
+        {
+            "name": "admin",
+            "password_hash": "ok7dB9to7MI9QkCZx0Yct2sD7SzKvtWjEgq4vQZGvk6lEEiX",
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "tags": ["administrator"]
+        }
+    ],
+    "vhosts": [
+        {
+            "name": "/"
+        },
+        {
+            "name": "order"
+        }
+    ],
+    "permissions": [
+        {
+            "user": "admin",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        },
+        {
+            "user": "admin",
+            "vhost": "order",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        }
+    ],
+    "exchanges": [
+        {
+            "name": "order-service-exchange",
+            "type": "topic",
+            "vhost": "order",
+            "durable": true,
+            "auto_delete": false
+        }
+    ],
+    "queues": [
+        {
+            "name": "order-processor-queue",
+            "vhost": "order",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {
+                "x-dead-letter-exchange": "order-service-exchange",
+                "x-dead-letter-routing-key": "order-processor-queue.undelivered"
+            }
+        },
+        {
+            "name": "order-processor-queue.undelivered",
+            "vhost": "order",
+            "durable": true,
+            "auto_delete": false
+        },
+        {
+            "name": "order-notifier-queue",
+            "vhost": "order",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {
+                "x-dead-letter-exchange": "order-service-exchange",
+                "x-dead-letter-routing-key": "order-notifier-queue.undelivered"
+            }
+        },
+        {
+            "name": "order-notifier-queue.undelivered",
+            "vhost": "order",
+            "durable": true,
+            "auto_delete": false
+        }
+    ],
+    "bindings": [
+        {
+            "source": "order-service-exchange",
+            "vhost": "order",
+            "destination": "order-processor-queue",
+            "destination_type": "queue",
+            "routing_key": "order-processor-queue"
+        },
+        {
+            "source": "order-service-exchange",
+            "vhost": "order",
+            "destination": "order-processor-queue.undelivered",
+            "destination_type": "queue",
+            "routing_key": "order-processor-queue.undelivered"
+        },
+        {
+            "source": "order-service-exchange",
+            "vhost": "order",
+            "destination": "order-notifier-queue",
+            "destination_type": "queue",
+            "routing_key": "order-notifier-queue"
+        },
+        {
+            "source": "order-service-exchange",
+            "vhost": "order",
+            "destination": "order-notifier-queue.undelivered",
+            "destination_type": "queue",
+            "routing_key": "order-notifier-queue.undelivered"
+        }
+    ]
+}

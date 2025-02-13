@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: 'order-service-rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    restart: always
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin123
+    volumes:
+      - ./docker_conf/rabbitmq/definitions.json:/opt/definitions.json:ro
+      - ./docker_conf/rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro

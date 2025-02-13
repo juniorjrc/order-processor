@@ -1,0 +1,51 @@
+server:
+  forward-headers-strategy: NATIVE
+  servlet:
+    context-path: /processor
+  port: ${PORT:0}
+
+application:
+  title: order-processor
+  version: 1.0.0
+
+eureka:
+  instance:
+    hostname: localhost
+    instance-id: ${spring.application.name}:${instanceId:${random.value}}
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+spring:
+  application:
+    name: order-processor
+  rabbitmq:
+    auto-startup: true
+    host: localhost
+    virtualhost: ${DATABASE_SCHEMA:order}
+    ssl:
+      enabled: ${RABBIT_SSL_ENABLED:false}
+      algorithm: TLSv1.2
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBIT_USERNAME:admin}
+    password: ${RABBIT_PASSWORD:admin123}
+    listener:
+      simple:
+        default-requeue-rejected: 'false' # disabled infinity reprocess on throw RuntimeException
+        retry:
+          enabled: ${RABBIT_AUTO_START_UP:true}
+          initial-interval: 60000 # the first time will wait 1 minute to try again
+          max-attempts: 2 # will try a maximum of 2 time1
+          max-interval: 60000 # the maximum interval between attempts is 1 minute
+          multiplier: 3.0 # multiplies the range by 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - '*'
+api:
+  clients:
+    order-service:
+      url: ${ORDER_SERVICE_URL:http://localhost:8765/orders}
